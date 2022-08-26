@@ -18,7 +18,7 @@ const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 const slack = new Slack(slackToken, slackSecret)
 const sheet = new Sheet(keys, sheetId)
 
-const deployemntTemplate = `Deployment :fire:\n\nService: {service}\nPIC: {pic}\nRFC: {rfc}\nTag: {tag}\nRelease: {release}`
+const deployemntTemplate = `Deployment :fire:\n\nService: {service}\nPIC: {pic}\nRFC: {rfc}\nTag: {tag}\nRelease: {release}\nStatus: {status}`
 
 async function main(){
     const releaseData = await extractReleaseData()
@@ -26,8 +26,8 @@ async function main(){
     const users = sheet.valueToArray(userAccount)
     const member = new Member(users)
 
-    const {message, attachments} = composeThread(releaseData, member)
-    const ts = await slack.sendMessageWithAttachmentsToChannel(slackChannel, message, attachments)
+    const attachments = composeThread(releaseData, member)
+    const ts = await slack.sendMessageWithAttachmentsToChannel(slackChannel, "", attachments)
     releaseData.thread = ts
     const featureRelease = composeFeatureRelease(releaseData, member)
     await slack.replyThread(slackChannel, ts, featureRelease)
@@ -136,12 +136,13 @@ function composeThread(data, member){
     const release =  data.tagUrl
     const rfc = "-"
 
-    const text = deployemntTemplate
+    const message = deployemntTemplate
         .replace('{rfc}', rfc)
         .replace('{service}', service)
         .replace('{pic}', `<@${pic}>`)
         .replace('{tag}', tag)
         .replace('{release}', release)
+        .replace('{status}', status)
 
     const attachments = [
         {
@@ -151,7 +152,7 @@ function composeThread(data, member){
                     "type": "section",
                     "text": {
                         "type": "plain_text",
-                        "text": "Status: " + status,
+                        "text": message,
                         "emoji": true
                     }
                 }
@@ -159,7 +160,7 @@ function composeThread(data, member){
         }
     ]
 
-    return {text, attachments}
+    return attachments
 }
 
 function composeFeatureRelease(data,member){
