@@ -19,25 +19,18 @@ const sheetId = process.env.GOOGLE_SHEET_ID
 const keys = process.env.GOOGLE_ACCOUNT_KEY
 const sheet = new Sheet(keys, sheetId)
 
-let userAccount
-sheet.batchGet("user mapping").then(acc => {
-    userAccount = acc
-}).catch(err => {
-    throw err
-})
-
-const users = sheet.valueToArray(userAccount)
-const member = new Member(users)
-
 const deployemntTemplate = `Deployment :fire:\n\nService: {service}\nPIC: {pic}\nRFC: {rfc}\nTag: {tag}\nRelease: {release}`
 
 async function main(){
     const releaseData = await extractReleaseData()
-    
-    const {message, attachments} = composeThread(releaseData)
+    const userAccount = await sheet.batchGet("user mapping")
+    const users = sheet.valueToArray(userAccount)
+    const member = new Member(users)
+
+    const {message, attachments} = composeThread(releaseData, member)
     const ts = await slack.sendMessageWithAttachmentsToChannel(slackChannel, message, attachments)
     releaseData.thread = ts
-    const featureRelease = composeFeatureRelease(releaseData)
+    const featureRelease = composeFeatureRelease(releaseData, member)
     await slack.replyThread(slackChannel, ts, featureRelease)
 
     await composeDeploymentLog(releaseData)
@@ -136,7 +129,7 @@ function latestStableHash(currentTag){
     return getReleaseHash(splittedStr.join("."))
 }
 
-function composeThread(data){
+function composeThread(data, member){
     const status = data.status
     const service = data.service
     const pic = member.getSlackFromGithub(data.pic)
@@ -170,7 +163,7 @@ function composeThread(data){
     return {text, attachments}
 }
 
-function composeFeatureRelease(data){
+function composeFeatureRelease(data,member){
     let text = `Release changes:\n`
     for (const change of data.changes){
         text += `\n • ${change.changes} (<@${member.getSlackFromGithub(change.author)}>)\n`
