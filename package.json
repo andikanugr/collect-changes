@@ -1,0 +1,24 @@
+{
+  "name": "collect-changes",
+  "version": "1.0.0",
+  "description": "Action for collect changes data and post it into slack channel",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andikanugr/collect-changes.git"
+  },
+  "author": "Andika Nugraha",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andikanugr/collect-changes/issues"
+  },
+  "homepage": "https://github.com/andikanugr/collect-changes#readme",
+  "dependencies": {
+    "@actions/core": "^1.9.1",
+    "@octokit/action": "^4.0.6",
+    "dg-action-tools": "^0.0.3"
+  }
+}

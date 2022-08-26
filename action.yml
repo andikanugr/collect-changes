@@ -1,0 +1,16 @@
+name: 'collect-changes'
+description: 'Digital deployment collect chages and post into channel'
+inputs:
+  service:
+    description: 'Service Name (spart by comma if more than 1 service. eg: serviceA,serviceB)'
+    required: true
+  exclude:
+    description: 'Excluded user (spart by comma if more than 1 service. eg: userA,userB)'
+    required: false
+  slack_channel:
+    description: 'Slack channel'
+    required: true
+
+runs:
+  using: 'node16'
+  main: 'index.js'
