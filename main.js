@@ -13,18 +13,18 @@ const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 const slackToken = core.getInput('slack_token')
 const slackSecret = core.getInput('slack_token')
 const slackChannel = core.getInput('slack_channel')
-const slack = new Slack(slackToken, slackSecret)
-
 const sheetId = process.env.GOOGLE_SHEET_ID
 const keys = process.env.GOOGLE_ACCOUNT_KEY
+
+core.debug(slackSecret)
+core.debug(sheetId)
+
+const slack = new Slack(slackToken, slackSecret)
 const sheet = new Sheet(keys, sheetId)
 
 const deployemntTemplate = `Deployment :fire:\n\nService: {service}\nPIC: {pic}\nRFC: {rfc}\nTag: {tag}\nRelease: {release}`
 
 async function main(){
-    core.debug(slackSecret)
-    core.debug(sheetId)
-    
     const releaseData = await extractReleaseData()
     const userAccount = await sheet.batchGet("user mapping")
     core.debug(userAccount)
