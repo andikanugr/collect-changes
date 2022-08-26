@@ -22,8 +22,12 @@ const sheet = new Sheet(keys, sheetId)
 const deployemntTemplate = `Deployment :fire:\n\nService: {service}\nPIC: {pic}\nRFC: {rfc}\nTag: {tag}\nRelease: {release}`
 
 async function main(){
+    core.debug(slackSecret)
+    core.debug(sheetId)
+    
     const releaseData = await extractReleaseData()
     const userAccount = await sheet.batchGet("user mapping")
+    core.debug(userAccount)
     const users = sheet.valueToArray(userAccount)
     const member = new Member(users)
 
