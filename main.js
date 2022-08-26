@@ -6,20 +6,14 @@ const service = core.getInput('service')
 const services = service.split(",")
 const excludedUser = core.getInput('exclude')
 const excludedUsers = excludedUser.split(",")
-
-const octokit = new Octokit();
-const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
-
-const slackToken = core.getInput('slack_token')
-const slackSecret = core.getInput('slack_secret')
 const slackChannel = core.getInput('slack_channel')
+const slackToken = process.env.SLACK_BOT_TOKEN
+const slackSecret = process.env.SLACK_BOT_SECRET
 const sheetId = process.env.GOOGLE_SHEET_ID
 const keys = process.env.GOOGLE_ACCOUNT_KEY
 
-core.info("test")
-core.info(process.env.GOOGLE_SHEET_ID)
-core.info(slackSecret)
-core.info(sheetId)
+const octokit = new Octokit();
+const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
 const slack = new Slack(slackToken, slackSecret)
 const sheet = new Sheet(keys, sheetId)
@@ -27,7 +21,6 @@ const sheet = new Sheet(keys, sheetId)
 const deployemntTemplate = `Deployment :fire:\n\nService: {service}\nPIC: {pic}\nRFC: {rfc}\nTag: {tag}\nRelease: {release}`
 
 async function main(){
-    await slack.sendMessageToChannel(slackChannel, "test")
     const releaseData = await extractReleaseData()
     const userAccount = await sheet.batchGet("user mapping")
     const users = sheet.valueToArray(userAccount)
