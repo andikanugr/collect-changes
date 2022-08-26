@@ -37,7 +37,6 @@ async function main(){
     await composeDeploymentLog(releaseData)
 }
 
-
 async function composeDeploymentLog(data){
     const deploymentLog = await sheet.batchGet("deployment log")
     const deploymentLogObj = sheet.getEmptyValueHeaderObject(deploymentLog)
@@ -83,7 +82,8 @@ async function extractReleaseData(){
     let result = {}
     result.changes = []
     if(services.length > 1) {
-        service = data.tag_name.split("-")[0]
+        // xxx-yyy-v.1.2.3 -> xxxyyy
+        service = data.tag_name.split("v")[0].replaceAll("-","")
         if (!services.includes(service)) core.setFailed("no need create RFC")
     } else {
         service = services[0]
