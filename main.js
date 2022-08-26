@@ -26,8 +26,8 @@ async function main(){
     const users = sheet.valueToArray(userAccount)
     const member = new Member(users)
 
-    const attachments = composeThread(releaseData, member)
-    const ts = await slack.sendMessageWithAttachmentsToChannel(slackChannel, "", attachments)
+    const {message, attachments} = composeThread(releaseData, member)
+    const ts = await slack.sendMessageWithAttachmentsToChannel(slackChannel, message, attachments)
     releaseData.thread = ts
     const featureRelease = composeFeatureRelease(releaseData, member)
     await slack.replyThread(slackChannel, ts, featureRelease)
@@ -152,7 +152,7 @@ function composeThread(data, member){
                     "type": "section",
                     "text": {
                         "type": "plain_text",
-                        "text": message,
+                        "text": "Status: " + status,
                         "emoji": true
                     }
                 }
@@ -160,7 +160,7 @@ function composeThread(data, member){
         }
     ]
 
-    return attachments
+    return {message, attachments}
 }
 
 function composeFeatureRelease(data,member){
