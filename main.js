@@ -10,8 +10,8 @@ const excludedUsers = excludedUser.split(",")
 const octokit = new Octokit();
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
-const slackToken = process.env.SLACK_BOT_TOKEN
-const slackSecret = process.env.SLACK_BOT_SECRET
+const slackToken = core.getInput('slack_token')
+const slackSecret = core.getInput('slack_token')
 const slackChannel = core.getInput('slack_channel')
 const slack = new Slack(slackToken, slackSecret)
 

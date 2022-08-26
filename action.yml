@@ -10,6 +10,12 @@ inputs:
   slack_channel:
     description: 'Slack channel'
     required: true
+  slack_token:
+    description: 'Slack token'
+    required: true
+  slack_secret:
+    description: 'Slack secret'
+    required: true
 
 runs:
   using: 'node16'
