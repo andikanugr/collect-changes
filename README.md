@@ -17,18 +17,18 @@ This action will collect changes from release and post it into slack channel.
 **Required** The slack channel
 
 ## Environtment
-GITHUB_REPOSITORY
-SLACK_BOT_TOKEN
-SLACK_BOT_SECRET
-GOOGLE_SHEET_ID
-GOOGLE_ACCOUNT_KEY
+* **GITHUB_REPOSITORY**
+* **SLACK_BOT_TOKEN**
+* **SLACK_BOT_SECRET**
+* **GOOGLE_SHEET_ID**
+* **GOOGLE_ACCOUNT_KEY**
 
 ## Example usage
 
-uses: andikanugr/collect-changes@v1.x
-with:
-  service: 'serviceA'
-  exclude: 'userA'
-  slack_channel: 'my-channel'
+>uses: andikanugr/collect-changes@v1.x\
+with:\
+  &ensp;&ensp;&ensp;&ensp;&ensp;service: 'serviceA'\
+  &ensp;&ensp;&ensp;&ensp;&ensp;exclude: 'userA'\
+  &ensp;&ensp;&ensp;&ensp;&ensp;slack_channel: 'my-channel'
 
 
