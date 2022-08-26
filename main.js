@@ -19,7 +19,13 @@ const sheetId = process.env.GOOGLE_SHEET_ID
 const keys = process.env.GOOGLE_ACCOUNT_KEY
 const sheet = new Sheet(keys, sheetId)
 
-const userAccount = await sheet.batchGet("user mapping")
+let userAccount
+sheet.batchGet("user mapping").then(acc => {
+    userAccount = acc
+}).catch(err => {
+    throw err
+})
+
 const users = sheet.valueToArray(userAccount)
 const member = new Member(users)
 
