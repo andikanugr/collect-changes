@@ -27,7 +27,7 @@ const sheet = new Sheet(keys, sheetId)
 const deployemntTemplate = `Deployment :fire:\n\nService: {service}\nPIC: {pic}\nRFC: {rfc}\nTag: {tag}\nRelease: {release}`
 
 async function main(){
-    slack.sendMessageToChannel(slackChannel, "test")
+    await slack.sendMessageToChannel(slackChannel, "test")
     const releaseData = await extractReleaseData()
     const userAccount = await sheet.batchGet("user mapping")
     const users = sheet.valueToArray(userAccount)
