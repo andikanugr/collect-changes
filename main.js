@@ -11,13 +11,15 @@ const octokit = new Octokit();
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
 const slackToken = core.getInput('slack_token')
-const slackSecret = core.getInput('slack_token')
+const slackSecret = core.getInput('slack_secret')
 const slackChannel = core.getInput('slack_channel')
 const sheetId = process.env.GOOGLE_SHEET_ID
 const keys = process.env.GOOGLE_ACCOUNT_KEY
 
-core.debug(slackSecret)
-core.debug(sheetId)
+core.info("test")
+core.info(process.env.GOOGLE_SHEET_ID)
+core.info(slackSecret)
+core.info(sheetId)
 
 const slack = new Slack(slackToken, slackSecret)
 const sheet = new Sheet(keys, sheetId)
@@ -27,7 +29,6 @@ const deployemntTemplate = `Deployment :fire:\n\nService: {service}\nPIC: {pic}\
 async function main(){
     const releaseData = await extractReleaseData()
     const userAccount = await sheet.batchGet("user mapping")
-    core.debug(userAccount)
     const users = sheet.valueToArray(userAccount)
     const member = new Member(users)
 
