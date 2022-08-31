@@ -51,6 +51,7 @@ async function composeDeploymentLog(data){
     deploymentLogObj.Pipeline = ''
     deploymentLogObj.Status = data.status
     deploymentLogObj.Changes = JSON.stringify(data.changes)
+    deploymentLogObj.Description = data.description
 
     let tasks = []
     let eic = []
@@ -92,7 +93,7 @@ async function extractReleaseData(){
         result.changes.push(extractIssue(changes[i].replace(/[\r\n]/gm, '')))
     }
 
-    result.body = data.body
+    result.description = data.body
     result.service = service
     result.tag = data.tag_name
     result.tagUrl = data.html_url
