@@ -46,7 +46,7 @@ async function composeDeploymentLog(data){
     deploymentLogObj.TagUrl = data.tagUrl
     deploymentLogObj.PIC = data.pic
     deploymentLogObj.CMA = ''
-    deploymentLogObj.Thread = data.thread
+    deploymentLogObj.Thread = data.thread + ''
     deploymentLogObj.RFC = ''
     deploymentLogObj.Pipeline = ''
     deploymentLogObj.Status = data.status
