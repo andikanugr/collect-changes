@@ -17,19 +17,10 @@ exports.Jira=function(token, user, host){
         return null
     }
 
-    this.createTask = async function(board, data, linked){ 
-        const issueUrl = `${host}/rest/api/2/issue`
+    this.createTask = async function(data, linked){ 
+        const issueUrl = `${host}/rest/api/3/issue`
         const payload = {
-            "fields": {
-                "project": {
-                    "key": board
-                },
-                "summary": data.tittle,
-                "description": data.body,
-                "issuetype": {
-                    "name": "Task"
-                }
-            }
+            "fields": data
         }
         if(linked.length > 0){
             payload.update = {
@@ -61,6 +52,7 @@ exports.Jira=function(token, user, host){
         
         //  INFO: There are bug on jira API (cannot link multiple issue in the same time). So we force it manually
         // https://confluence.atlassian.com/jirakb/how-to-use-rest-api-to-add-issue-links-in-jira-issues-939932271.html
+        console.log(issueResponse)
         if (issueResponse.ok) {
             const res = await issueResponse.json();
             for(let i=1; i < linked.length; i++){

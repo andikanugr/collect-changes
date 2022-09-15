@@ -10,6 +10,9 @@ inputs:
   slack_channel:
     description: 'Slack channel'
     required: true
+  sheet_gid:
+    description: 'Sheet gid deployment log'
+    required: true
 
 runs:
   using: 'node16'

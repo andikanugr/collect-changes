@@ -1,6 +1,7 @@
 const core = require('@actions/core');
 const { Octokit } = require("@octokit/action");
 const { Member, Slack, Sheet } = require("dg-action-tools");
+const { context } = require("@actions/github");
 
 const service = core.getInput('service')
 const services = service.split(",")
@@ -11,9 +12,11 @@ const slackToken = process.env.SLACK_BOT_TOKEN
 const slackSecret = process.env.SLACK_BOT_SECRET
 const sheetId = process.env.GOOGLE_SHEET_ID
 const keys = process.env.GOOGLE_ACCOUNT_KEY
+const sheetGid = core.getInput('sheet_gid')
 
 const octokit = new Octokit();
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
+
 
 const slack = new Slack(slackToken, slackSecret)
 const sheet = new Sheet(keys, sheetId)
@@ -21,7 +24,9 @@ const sheet = new Sheet(keys, sheetId)
 const deployemntTemplate = `Deployment :fire:\n\nService: {service}\nPIC: {pic}\nRFC: {rfc}\nTag: {tag}\nRelease: {release}\nStatus: {status}`
 
 async function main(){
-    const releaseData = await extractReleaseData()
+    const tagName = context.ref;
+    const tag = tagName.replace("refs/tags/", "");
+    const releaseData = await extractReleaseData(tag)
     const userAccount = await sheet.batchGet("user mapping")
     const users = sheet.valueToArray(userAccount)
     const member = new Member(users)
@@ -61,20 +66,21 @@ async function composeDeploymentLog(data){
     }
     deploymentLogObj.Tasks = tasks.toString()
     deploymentLogObj.EIC = [...new Set(eic)].toString()
-    sheet.appendWithObject("deployment log", deploymentLogObj)
+    sheet.appendFirstRowWithObject(sheetGid, deploymentLogObj)
 }
 
-async function getLatestRelease(){
-    const resp = await octokit.request('GET /repos/{owner}/{repo}/releases/latest', {
+async function getLatestRelease(tag){
+    const resp = await octokit.request('GET /repos/{owner}/{repo}/releases/tags/{tag}', {
         owner: owner,
-        repo: repo
+        repo: repo,
+        tag: tag,
     })
 
     return resp.data
 }
 
-async function extractReleaseData(){
-    const data = await getLatestRelease()
+async function extractReleaseData(tag){
+    const data = await getLatestRelease(tag)
     if(excludedUsers.includes(data.author.login)) core.error("no need create RFC")
     
     let service
@@ -106,8 +112,8 @@ async function extractReleaseData(){
 }
 
 function extractIssue(changes){
-    const author = changes.match(/@\w*/g)[0].replace("@", "")
-    const issue = changes.match(/\[(.*?)\]/)[0].replace(/[\[\]']+/g,'')
+    const author = changes.match(/@\w*/g) != null ? changes.match(/@\w*/g)[0].replace("@", "") : null
+    const issue = changes.match(/\[(.*?)\]/) != null ? changes.match(/\[(.*?)\]/)[0].replace(/[\[\]']+/g,'') : null
     return {changes, issue, author}
 }
 
@@ -124,8 +130,15 @@ async function getReleaseHash(tag){
 // TODO: need improvement
 function latestStableHash(currentTag){
     let splittedStr = currentTag.split(".")
-    const stableMinorVersion = parseInt(splittedStr[splittedStr.length -1 ]) - 1
-    splittedStr[splittedStr.length - 1] = stableMinorVersion.toString()
+    if(parseInt(splittedStr[splittedStr.length -1 ]) != 0){
+        const stableMinorVersion = parseInt(splittedStr[splittedStr.length -1 ]) - 1
+        splittedStr[splittedStr.length - 1] = stableMinorVersion.toString()
+    }else{
+        const stableMajorVersion = parseInt(splittedStr[splittedStr.length - 2 ]) - 1
+        splittedStr[splittedStr.length - 2] = stableMajorVersion.toString()
+        splittedStr[splittedStr.length - 1] = "99"
+    }
+    
     return getReleaseHash(splittedStr.join("."))
 }
 
