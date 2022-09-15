@@ -66,7 +66,7 @@ async function composeDeploymentLog(data){
     }
     deploymentLogObj.Tasks = tasks.toString()
     deploymentLogObj.EIC = [...new Set(eic)].toString()
-    sheet.appendFirstRowWithObject(sheetGid, deploymentLogObj)
+    sheet.appendFirstRowWithObject("deployment log", sheetGid, deploymentLogObj)
 }
 
 async function getLatestRelease(tag){

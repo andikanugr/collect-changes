@@ -93,35 +93,24 @@ exports.Sheet = function (keys, spreadsheetId) {
         }
     }
 
-    this.appendFirstRowWithObject = async function (sheet, obj) {
-        const values = Object.values(obj).join(';');
+    this.appendFirstRowWithObject = async function (sheet, sheetGid, obj) {
+        const values = Object.values(obj);
         const req = {
             "requests": [
                 {
                     "insertRange": {
                         "range": {
-                            "sheetId": sheet,
+                            "sheetId": sheetGid,
                             "startRowIndex": 1,
                             "endRowIndex": 2
                         },
                         "shiftDimension": "ROWS"
                     }
-                },
-                {
-                    "pasteData": {
-                        "data": values,
-                        "type": "PASTE_VALUES",
-                        "delimiter": ";",
-                        "coordinate": {
-                            "sheetId": sheet,
-                            "rowIndex": 1,
-                        }
-                    }
                 }
             ]
         }
         try {
-            this.service.spreadsheets.batchUpdate({
+            await this.service.spreadsheets.batchUpdate({
                 spreadsheetId: spreadsheetId,
                 requestBody: req
             })
@@ -129,11 +118,13 @@ exports.Sheet = function (keys, spreadsheetId) {
             throw err
         }
 
+        await this.updateValue(`${sheet}!A2`, values)
+
     }
 
     this.updateValue = async function (ranges, values) {
         try {
-            this.service.spreadsheets.values.update({
+            await this.service.spreadsheets.values.update({
                 spreadsheetId: spreadsheetId,
                 range: ranges,
                 valueInputOption: "USER_ENTERED",
