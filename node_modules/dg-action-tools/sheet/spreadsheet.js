@@ -110,7 +110,7 @@ exports.Sheet = function (keys, spreadsheetId) {
                 {
                     "pasteData": {
                         "data": values,
-                        "type": "PASTE_NORMAL",
+                        "type": "PASTE_VALUES",
                         "delimiter": ";",
                         "coordinate": {
                             "sheetId": sheet,
