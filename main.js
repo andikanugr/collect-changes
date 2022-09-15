@@ -61,8 +61,8 @@ async function composeDeploymentLog(data){
     let tasks = []
     let eic = []
     for(const change of data.changes){
-        tasks.push(change.issue)
-        eic.push(change.author)
+        if(change.issue) tasks.push(change.issue)
+        if(change.author) eic.push(change.author)
     }
     deploymentLogObj.Tasks = tasks.toString()
     deploymentLogObj.EIC = [...new Set(eic)].toString()

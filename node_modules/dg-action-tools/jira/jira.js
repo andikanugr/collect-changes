@@ -52,7 +52,6 @@ exports.Jira=function(token, user, host){
         
         //  INFO: There are bug on jira API (cannot link multiple issue in the same time). So we force it manually
         // https://confluence.atlassian.com/jirakb/how-to-use-rest-api-to-add-issue-links-in-jira-issues-939932271.html
-        console.log(issueResponse)
         if (issueResponse.ok) {
             const res = await issueResponse.json();
             for(let i=1; i < linked.length; i++){
