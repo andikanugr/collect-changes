@@ -1,14 +1,15 @@
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
-exports.Jira=function(token, user, host){
+exports.Jira = function (token, user, host) {
     const jiraAuth = btoa(`${user}:${token}`);
-    
-    this.getStatus = async function(issue){
+
+    this.getStatus = async function (issue) {
         const url = `${host}/rest/api/2/issue/${issue}?fields=status`
-        let response = await fetch(url, { headers : {
-            'Authorization': 'Basic ' + jiraAuth,
-            'Content-Type': 'application/json'
-          } 
+        let response = await fetch(url, {
+            headers: {
+                'Authorization': 'Basic ' + jiraAuth,
+                'Content-Type': 'application/json'
+            }
         });
         if (response.ok) {
             const json = await response.json();
@@ -17,12 +18,12 @@ exports.Jira=function(token, user, host){
         return null
     }
 
-    this.createTask = async function(data, linked){ 
+    this.createTask = async function (data, linked) {
         const issueUrl = `${host}/rest/api/3/issue`
         const payload = {
             "fields": data
         }
-        if(linked.length > 0){
+        if (linked.length > 0) {
             payload.update = {
                 "issuelinks": [
                     {
@@ -41,21 +42,22 @@ exports.Jira=function(token, user, host){
             }
         }
 
-        let issueResponse = await fetch(issueUrl, 
-            { headers : {
-                'Authorization': 'Basic ' + jiraAuth,
-                'Content-Type': 'application/json'
+        let issueResponse = await fetch(issueUrl,
+            {
+                headers: {
+                    'Authorization': 'Basic ' + jiraAuth,
+                    'Content-Type': 'application/json'
                 },
                 method: 'POST',
                 body: JSON.stringify(payload)
             });
-        
+
         //  INFO: There are bug on jira API (cannot link multiple issue in the same time). So we force it manually
         // https://confluence.atlassian.com/jirakb/how-to-use-rest-api-to-add-issue-links-in-jira-issues-939932271.html
+        const res = await issueResponse.json();
         if (issueResponse.ok) {
-            const res = await issueResponse.json();
-            for(let i=1; i < linked.length; i++){
-                const updatePayload =  {
+            for (let i = 1; i < linked.length; i++) {
+                const updatePayload = {
                     "update": {
                         "issuelinks": [
                             {
@@ -73,16 +75,19 @@ exports.Jira=function(token, user, host){
                         ]
                     }
                 }
-                await fetch(`${issueUrl}/${res.key}`, { headers : {
+                await fetch(`${issueUrl}/${res.key}`, {
+                    headers: {
                         'Authorization': 'Basic ' + jiraAuth,
                         'Content-Type': 'application/json'
-                        },
-                        method: 'PUT',
-                        body: JSON.stringify(updatePayload)
-                    });
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify(updatePayload)
+                });
             }
-            return res.key
+            res.success = true
+        } else {
+            res.success = false
         }
-        return null
+        return res
     }
 }

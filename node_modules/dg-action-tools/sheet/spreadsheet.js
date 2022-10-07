@@ -94,7 +94,6 @@ exports.Sheet = function (keys, spreadsheetId) {
     }
 
     this.appendFirstRowWithObject = async function (sheet, sheetGid, obj) {
-        const values = Object.values(obj);
         const req = {
             "requests": [
                 {
@@ -118,11 +117,12 @@ exports.Sheet = function (keys, spreadsheetId) {
             throw err
         }
 
-        await this.updateValue(`${sheet}!A2`, values)
+        await this.updateValue(`${sheet}!A2`, obj)
 
     }
 
-    this.updateValue = async function (ranges, values) {
+    this.updateValue = async function (ranges, obj) {
+        const values = Object.values(obj);
         try {
             await this.service.spreadsheets.values.update({
                 spreadsheetId: spreadsheetId,

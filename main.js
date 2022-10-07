@@ -61,8 +61,13 @@ async function composeDeploymentLog(data){
     let tasks = []
     let eic = []
     for(const change of data.changes){
-        if(change.issue) tasks.push(change.issue)
-        if(change.author) eic.push(change.author)
+        if(change.issue != null) {
+            for (const task of change.issue.split(",")){
+                tasks.push(task)
+            }
+            
+        }
+        if(change.author != null) eic.push(change.author)
     }
     deploymentLogObj.Tasks = tasks.toString()
     deploymentLogObj.EIC = [...new Set(eic)].toString()
@@ -103,16 +108,19 @@ async function extractReleaseData(tag){
     result.service = service
     result.tag = data.tag_name
     result.tagUrl = data.html_url
-    result.pic = data.author.login
+    
     result.status = "NEW"
     result.releaseHash = await getReleaseHash(result.tag)
     result.stableHash = await latestStableHash(result.tag)
+
+    const pic = getWorkwflowActor(result.tag)
+    result.pic = pic ? pic : data.author.login
     
     return result
 }
 
 function extractIssue(changes){
-    const author = changes.match(/@\w*/g) != null ? changes.match(/@\w*/g)[0].replace("@", "") : null
+    const author = changes.match(/@([a-z0-9](?:-(?=[a-z0-9])|[a-z0-9]){0,38}(?<=[a-z0-9]))/gi) != null ? changes.match(/@([a-z0-9](?:-(?=[a-z0-9])|[a-z0-9]){0,38}(?<=[a-z0-9]))/gi)[0].replace("@", "") : null
     const issue = changes.match(/\[(.*?)\]/) != null ? changes.match(/\[(.*?)\]/)[0].replace(/[\[\]']+/g,'') : null
     return {changes, issue, author}
 }
@@ -124,7 +132,7 @@ async function getReleaseHash(tag){
         tag_name: tag
     })
 
-    return resp.data.object.sha
+    return `${tag} (${resp.data.object.sha})`
 }
 
 // TODO: need improvement
@@ -185,6 +193,19 @@ function composeFeatureRelease(data,member){
     text = "```" + text + "```" 
 
     return text
+}
+
+async function getWorkwflowActor(tag){
+    const resp = await octokit.request('GET /repos/{owner}/{repo}/actions/runs', {
+        owner: owner,
+        repo: repo,
+        per_page: 10,
+    })
+    var filtered =  resp.data.workflow_runs.filter(function(wf) {
+        return wf.display_title == tag
+      });
+
+    return filtered[0].actor.login
 }
 
 main()
