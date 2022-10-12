@@ -113,7 +113,7 @@ async function extractReleaseData(tag){
     result.releaseHash = await getReleaseHash(result.tag)
     result.stableHash = await latestStableHash(result.tag)
 
-    const pic = getWorkwflowActor(result.tag)
+    const pic = await getWorkwflowActor(result.tag)
     result.pic = pic ? pic : data.author.login
     
     return result
