@@ -8,11 +8,14 @@ const services = service.split(",")
 const excludedUser = core.getInput('exclude')
 const excludedUsers = excludedUser.split(",")
 const slackChannel = core.getInput('slack_channel')
+const sheetId = core.getInput('sheet_id')
+const sheetMemberGid = core.getInput('sheet_member_gid')
+
 const slackToken = process.env.SLACK_BOT_TOKEN
 const slackSecret = process.env.SLACK_BOT_SECRET
-const sheetId = process.env.GOOGLE_SHEET_ID
 const keys = process.env.GOOGLE_ACCOUNT_KEY
-const sheetGid = core.getInput('sheet_gid')
+
+
 
 const octokit = new Octokit();
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
@@ -71,7 +74,7 @@ async function composeDeploymentLog(data){
     }
     deploymentLogObj.Tasks = tasks.toString()
     deploymentLogObj.EIC = [...new Set(eic)].toString()
-    sheet.appendFirstRowWithObject("deployment log", sheetGid, deploymentLogObj)
+    sheet.appendFirstRowWithObject("deployment log", sheetMemberGid, deploymentLogObj)
 }
 
 async function getLatestRelease(tag){
