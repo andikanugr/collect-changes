@@ -125,6 +125,9 @@ async function extractReleaseData(tag){
 function extractIssue(changes){
     const author = changes.match(/@([a-z0-9](?:-(?=[a-z0-9])|[a-z0-9]){0,38}(?<=[a-z0-9]))/gi) != null ? changes.match(/@([a-z0-9](?:-(?=[a-z0-9])|[a-z0-9]){0,38}(?<=[a-z0-9]))/gi)[0].replace("@", "") : null
     const issue = changes.match(/\[(.*?)\]/) != null ? changes.match(/\[(.*?)\]/)[0].replace(/[\[\]']+/g,'') : null
+    if(issue == ""){
+        issue = null
+    }
     return {changes, issue, author}
 }
 
