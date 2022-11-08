@@ -205,14 +205,18 @@ async function getWorkwflowActor(tag, hash){
     const resp = await octokit.request('GET /repos/{owner}/{repo}/actions/runs', {
         owner: owner,
         repo: repo,
-        per_page: 10,
+        per_page: 50,
         head_sha: hash,
     })
-    var filtered =  resp.data.workflow_runs.filter(function(wf) {
+    var filtered = resp.data.workflow_runs.filter(function(wf) {
         return wf.display_title == tag
       });
-
-    return filtered[0].actor.login
+    
+    if(filtered.length > 0){
+        return filtered[0].actor.login
+    }
+    core.info(resp.data)
+    return null
 }
 
 main()
