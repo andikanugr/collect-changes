@@ -116,7 +116,7 @@ async function extractReleaseData(tag){
     result.releaseHash = await getReleaseHash(result.tag)
     result.stableHash = await latestStableHash(result.tag)
 
-    const pic = await getWorkwflowActor(result.tag)
+    const pic = await getWorkwflowActor(result.tag, result.releaseHash)
     result.pic = pic ? pic : data.author.login
     
     return result
@@ -201,11 +201,12 @@ function composeFeatureRelease(data,member){
     return text
 }
 
-async function getWorkwflowActor(tag){
+async function getWorkwflowActor(tag, hash){
     const resp = await octokit.request('GET /repos/{owner}/{repo}/actions/runs', {
         owner: owner,
         repo: repo,
         per_page: 10,
+        head_sha: hash,
     })
     var filtered =  resp.data.workflow_runs.filter(function(wf) {
         return wf.display_title == tag
